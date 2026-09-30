@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+import { Reveal, Stagger, StaggerItem } from "@/components/Reveal";
 
 const features = [
   {
@@ -30,37 +35,83 @@ const stats = [
   { label: "Uptime", value: "99.98%" },
 ];
 
+const commands = [
+  { cmd: "/help", desc: "Show all available commands" },
+  { cmd: "/mod warn", desc: "Warn a member with reason" },
+  { cmd: "/eco balance", desc: "Check your server currency" },
+  { cmd: "/level", desc: "View rank and XP progress" },
+  { cmd: "/ai ask", desc: "Ask the AI anything" },
+  { cmd: "/config", desc: "Open server settings (dashboard)" },
+];
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export default function HomePage() {
+  const heroRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
+
   return (
     <div className="relative overflow-hidden">
-      {/* Background orbs */}
-      <div className="orb -top-32 -left-32 h-96 w-96 bg-amber-500/20" />
-      <div className="orb top-1/3 -right-24 h-80 w-80 bg-indigo-500/15" />
-      <div className="orb bottom-0 left-1/3 h-72 w-72 bg-amber-600/10" />
+      {/* Ambient orbs */}
+      <div className="orb orb-float -top-32 -left-32 h-96 w-96 bg-amber-500/20" />
+      <div className="orb orb-float-delay top-1/3 -right-24 h-80 w-80 bg-indigo-500/15" />
+      <div className="orb orb-float bottom-0 left-1/3 h-72 w-72 bg-amber-600/10" />
 
-      {/* Hero */}
-      <section className="relative mx-auto max-w-6xl px-4 pt-20 pb-24 sm:px-6 sm:pt-28 sm:pb-32">
+      {/* ─── HERO (page 1 feel) ─── */}
+      <motion.section
+        ref={heroRef}
+        style={reduce ? undefined : { opacity: heroOpacity, y: heroY, scale: heroScale }}
+        className="section-page relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28"
+      >
         <div className="grid-overlay absolute inset-0 -z-10 opacity-40" />
 
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-sm text-amber-300">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease, delay: 0.1 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-1.5 text-sm text-amber-300"
+          >
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 pulse-dot" />
             Online · 12.4k servers
-          </div>
+          </motion.div>
 
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.1]">
+          <motion.h1
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, ease, delay: 0.2 }}
+            className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.1]"
+          >
             Everything your server needs.
             <br />
             <span className="gradient-text">Except music.</span>
-          </h1>
+          </motion.h1>
 
-          <p className="mt-6 text-lg text-stone-400 leading-relaxed max-w-2xl mx-auto">
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.35 }}
+            className="mt-6 text-lg text-stone-400 leading-relaxed max-w-2xl mx-auto"
+          >
             Waufle is the all-in-one Discord bot that handles moderation, economy,
             levels, AI chat, utilities and deep premium customization — so you
             can focus on your community.
-          </p>
+          </motion.p>
 
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.5 }}
+            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
             <a
               href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
               target="_blank"
@@ -74,150 +125,149 @@ export default function HomePage() {
             </a>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-2xl border border-stone-700 bg-stone-900/60 px-8 py-3.5 text-base font-semibold text-stone-200 hover:border-amber-500/40 hover:bg-stone-800/80 transition-all"
+              className="inline-flex items-center gap-2 rounded-2xl border border-stone-700 bg-stone-900/60 px-8 py-3.5 text-base font-semibold text-stone-200 hover:border-amber-500/40 hover:bg-stone-800/80 transition-all duration-300"
             >
               Open Dashboard
             </Link>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Stats strip */}
-        <div className="mt-20 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {/* Stats */}
+        <Stagger className="mt-20 grid grid-cols-2 gap-4 sm:grid-cols-4" stagger={0.1} delay={0.15}>
           {stats.map((s) => (
-            <div
-              key={s.label}
-              className="glass rounded-2xl px-4 py-5 text-center card-lift"
-            >
-              <div className="text-2xl sm:text-3xl font-bold text-amber-400">{s.value}</div>
-              <div className="mt-1 text-sm text-stone-400">{s.label}</div>
-            </div>
+            <StaggerItem key={s.label}>
+              <div className="glass rounded-2xl px-4 py-5 text-center card-lift">
+                <div className="text-2xl sm:text-3xl font-bold text-amber-400">{s.value}</div>
+                <div className="mt-1 text-sm text-stone-400">{s.label}</div>
+              </div>
+            </StaggerItem>
           ))}
-        </div>
-      </section>
+        </Stagger>
+      </motion.section>
 
-      {/* Features */}
-      <section className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <div className="mb-12 text-center">
+      {/* ─── FEATURES (page 2 feel) ─── */}
+      <section className="section-page relative mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <Reveal className="mb-12 text-center">
           <h2 className="text-3xl font-bold sm:text-4xl">
             One bot. <span className="gradient-text">Every feature.</span>
           </h2>
           <p className="mt-3 text-stone-400 max-w-xl mx-auto">
             From serious moderation to fun economy systems — Waufle covers it all without the bloat.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <Stagger className="grid gap-5 sm:grid-cols-2" stagger={0.12}>
           {features.map((f) => (
-            <div
-              key={f.title}
-              className="glass rounded-2xl p-6 card-lift group"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-2xl group-hover:scale-110 transition-transform">
-                {f.icon}
+            <StaggerItem key={f.title}>
+              <div className="glass rounded-2xl p-6 card-lift group h-full">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
+                  {f.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-stone-100">{f.title}</h3>
+                <p className="mt-2 text-sm text-stone-400 leading-relaxed">{f.desc}</p>
               </div>
-              <h3 className="text-lg font-semibold text-stone-100">{f.title}</h3>
-              <p className="mt-2 text-sm text-stone-400 leading-relaxed">{f.desc}</p>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
-      {/* Premium teaser */}
+      {/* ─── PREMIUM (page 3 feel) ─── */}
       <section className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="glass-strong relative overflow-hidden rounded-3xl p-8 sm:p-12 border-amber-500/20">
-          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full premium-badge px-3 py-1 text-xs">
-                PREMIUM
-              </span>
-              <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
-                Full control for your server
-              </h2>
-              <p className="mt-3 text-stone-400 leading-relaxed">
-                Free servers get solid defaults and core modules. Premium unlocks
-                deep customization — custom automations, advanced modules,
-                priority support and exclusive features.
-              </p>
-              <ul className="mt-6 space-y-2 text-sm text-stone-300">
-                <li className="flex items-center gap-2">
-                  <span className="text-amber-400">✓</span> Custom module toggles & priorities
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-amber-400">✓</span> Advanced automation rules
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-amber-400">✓</span> Priority support & early access
-                </li>
-              </ul>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-2xl btn-glow px-8 py-3.5 text-base font-bold text-stone-900"
-              >
-                Manage in Dashboard
-              </Link>
+        <Reveal variant="scaleIn">
+          <div className="glass-strong relative overflow-hidden rounded-3xl p-8 sm:p-12 border-amber-500/20">
+            <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+            <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full premium-badge px-3 py-1 text-xs">
+                  PREMIUM
+                </span>
+                <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
+                  Full control for your server
+                </h2>
+                <p className="mt-3 text-stone-400 leading-relaxed">
+                  Free servers get solid defaults and core modules. Premium unlocks
+                  deep customization — custom automations, advanced modules,
+                  priority support and exclusive features.
+                </p>
+                <ul className="mt-6 space-y-2 text-sm text-stone-300">
+                  {[
+                    "Custom module toggles & priorities",
+                    "Advanced automation rules",
+                    "Priority support & early access",
+                  ].map((item, i) => (
+                    <Reveal key={item} delay={0.1 * i} variant="slideLeft">
+                      <li className="flex items-center gap-2">
+                        <span className="text-amber-400">✓</span> {item}
+                      </li>
+                    </Reveal>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex justify-center lg:justify-end">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 rounded-2xl btn-glow px-8 py-3.5 text-base font-bold text-stone-900"
+                >
+                  Manage in Dashboard
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* Commands teaser */}
-      <section className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      {/* ─── COMMANDS (page 4 feel) ─── */}
+      <section className="section-page relative mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
-          <div>
+          <Reveal>
             <h2 className="text-3xl font-bold">Popular commands</h2>
             <p className="mt-2 text-stone-400">A small taste of what Waufle can do.</p>
-          </div>
-          <Link
-            href="/commands"
-            className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors"
-          >
-            View all commands →
-          </Link>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <Link
+              href="/commands"
+              className="text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors duration-300"
+            >
+              View all commands →
+            </Link>
+          </Reveal>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { cmd: "/help", desc: "Show all available commands" },
-            { cmd: "/mod warn", desc: "Warn a member with reason" },
-            { cmd: "/eco balance", desc: "Check your server currency" },
-            { cmd: "/level", desc: "View rank and XP progress" },
-            { cmd: "/ai ask", desc: "Ask the AI anything" },
-            { cmd: "/config", desc: "Open server settings (dashboard)" },
-          ].map((c) => (
-            <div
-              key={c.cmd}
-              className="flex items-start gap-3 rounded-xl border border-border bg-stone-900/50 px-4 py-3.5 hover:border-amber-500/30 transition-colors"
-            >
-              <code className="shrink-0 rounded-md bg-amber-500/10 px-2 py-0.5 text-sm font-mono text-amber-300">
-                {c.cmd}
-              </code>
-              <span className="text-sm text-stone-400">{c.desc}</span>
-            </div>
+        <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" stagger={0.07}>
+          {commands.map((c) => (
+            <StaggerItem key={c.cmd}>
+              <div className="flex items-start gap-3 rounded-xl border border-border bg-stone-900/50 px-4 py-3.5 hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1">
+                <code className="shrink-0 rounded-md bg-amber-500/10 px-2 py-0.5 text-sm font-mono text-amber-300">
+                  {c.cmd}
+                </code>
+                <span className="text-sm text-stone-400">{c.desc}</span>
+              </div>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
-      {/* Final CTA */}
-      <section className="relative mx-auto max-w-6xl px-4 py-24 sm:px-6">
-        <div className="text-center">
+      {/* ─── FINAL CTA (page 5 feel) ─── */}
+      <section className="relative mx-auto max-w-6xl px-4 py-28 sm:px-6">
+        <Reveal className="text-center" variant="fadeUp">
           <h2 className="text-3xl font-bold sm:text-4xl">
             Ready to level up your server?
           </h2>
           <p className="mt-3 text-stone-400">
             Invite Waufle in under 30 seconds. Free to start.
           </p>
-          <a
+          <motion.a
             href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=8&scope=bot%20applications.commands"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-8 inline-flex items-center gap-2 rounded-2xl btn-glow px-10 py-4 text-lg font-bold text-stone-900"
+            whileHover={reduce ? undefined : { scale: 1.03 }}
+            whileTap={reduce ? undefined : { scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
           >
             Invite Waufle
-          </a>
-        </div>
+          </motion.a>
+        </Reveal>
       </section>
     </div>
   );
