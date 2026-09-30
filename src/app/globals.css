@@ -79,16 +79,21 @@ body {
   border: 1px solid rgba(245, 158, 11, 0.18);
 }
 
-/* Glow button */
+/* Glow button — Discord-soft transitions */
 .btn-glow {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   box-shadow: 0 0 24px rgba(245, 158, 11, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .btn-glow:hover {
-  box-shadow: 0 0 36px rgba(245, 158, 11, 0.5), 0 6px 16px rgba(0, 0, 0, 0.4);
-  transform: translateY(-1px);
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.55), 0 8px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-glow:active {
+  transform: translateY(0) scale(0.98);
 }
 
 /* Soft floating orbs */
@@ -119,6 +124,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: #44403c;
   border-radius: 4px;
+  transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #57534e;
@@ -133,9 +139,16 @@ body {
 /* Animated gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #818cf8 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Status pulse */
@@ -147,12 +160,68 @@ body {
   50% { opacity: 0.4; }
 }
 
-/* Soft card hover */
+/* Soft card hover — Discord-like */
 .card-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
 }
 .card-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-  border-color: rgba(245, 158, 11, 0.3);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+/* Section divider — subtle page-like feel */
+.section-page {
+  min-height: min(100vh, 900px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+/* Soft ambient float for orbs */
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(12px, -18px); }
+  66% { transform: translate(-10px, 8px); }
+}
+
+.orb-float {
+  animation: float-slow 18s ease-in-out infinite;
+}
+
+.orb-float-delay {
+  animation: float-slow 22s ease-in-out infinite reverse;
+}
+
+/* Link / nav subtle underline grow */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: 2px;
+  background: #f59e0b;
+  border-radius: 1px;
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1), left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 60%;
+  left: 20%;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .gradient-text { animation: none; }
+  .pulse-dot { animation: none; }
+  .orb-float, .orb-float-delay { animation: none; }
+  .btn-glow, .card-lift { transition: none; }
 }
